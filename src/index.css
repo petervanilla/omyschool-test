@@ -1,0 +1,144 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-surface: var(--surface);
+  --color-surface-variant: var(--surface-variant);
+  --color-outline: var(--outline);
+  --font-sans: 'Public Sans', sans-serif;
+  --font-serif: 'Noto Serif KR', serif;
+  --font-mono: 'Courier Prime', monospace;
+}
+
+:root {
+  --primary: #ff5100;
+  --secondary: #151050;
+  --surface: #f6f6f6;
+  --surface-variant: #e2e2e2;
+  --outline: #979797;
+}
+
+:root.dark {
+  --primary: #ff3300; /* High contrast primary */
+  --secondary: #f0f0f0; 
+  --surface: #0a0a0a; 
+  --surface-variant: #111111;
+  --outline: #333333;
+}
+
+/* Overrides for brutalist dark mode */
+:root.dark body {
+  background-color: var(--surface);
+  color: var(--secondary);
+}
+
+:root.dark .bg-white {
+  background-color: var(--surface-variant) !important;
+}
+
+:root.dark .bg-gray-50,
+:root.dark .bg-gray-100,
+:root.dark .bg-gray-200,
+:root.dark .bg-[#fdfbf7] {
+  background-color: #161616 !important;
+}
+
+:root.dark .text-secondary {
+  color: var(--secondary) !important;
+}
+
+:root.dark .text-black {
+  color: #ffffff !important;
+}
+
+:root.dark .text-gray-500,
+:root.dark .text-gray-600,
+:root.dark .text-gray-700 {
+  color: #999999 !important;
+}
+
+:root.dark .border-outline {
+  border-color: var(--outline) !important;
+}
+
+:root.dark .border-gray-300,
+:root.dark .border-gray-400 {
+  border-color: var(--outline) !important;
+}
+
+:root.dark .bg-grid-pattern {
+  background-image: 
+       linear-gradient(to right, rgba(255,255,255,0.05) 1px, transparent 1px),
+       linear-gradient(to bottom, rgba(255,255,255,0.05) 1px, transparent 1px) !important;
+}
+
+:root.dark .barcode-strip {
+  background: repeating-linear-gradient(
+      90deg,
+      #f0f0f0,
+      #f0f0f0 2px,
+      transparent 2px,
+      transparent 4px,
+      #f0f0f0 4px,
+      #f0f0f0 5px,
+      transparent 5px,
+      transparent 8px
+  ) !important;
+}
+
+@layer utilities {
+  .bg-grid-pattern {
+    background-image: 
+        linear-gradient(to right, rgba(151,151,151,0.2) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(151,151,151,0.2) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .bg-grid-pattern-light {
+    background-image: 
+        linear-gradient(to right, rgba(255,255,255,0.1) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+  .thin-border {
+    border: 1px solid var(--color-outline);
+  }
+  .brutal-shadow {
+    box-shadow: 2px 2px 0px 0px var(--color-secondary);
+  }
+  .brutal-shadow-primary {
+    box-shadow: 4px 4px 0px 0px var(--color-primary);
+  }
+  
+  :root.dark .brutal-shadow {
+    box-shadow: 2px 2px 0px 0px var(--color-primary);
+  }
+
+  .active-brutal:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+  }
+  .active-brutal-primary:active {
+    transform: translate(4px, 4px);
+    box-shadow: none;
+  }
+  
+  .perspective-1000 { perspective: 1000px; }
+  .transform-style-3d { transform-style: preserve-3d; }
+  .backface-hidden { backface-visibility: hidden; }
+  .rotate-y-180 { transform: rotateY(180deg); }
+  
+  .barcode-strip {
+    background: repeating-linear-gradient(
+        90deg,
+        #1a1a1a,
+        #1a1a1a 2px,
+        transparent 2px,
+        transparent 4px,
+        #1a1a1a 4px,
+        #1a1a1a 5px,
+        transparent 5px,
+        transparent 8px
+    );
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "대한민국 중2병 측정기",
+  "description": "중2병 뇌파 및 외형 측정을 통한 중2병 진단 웹 앱",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

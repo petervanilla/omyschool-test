@@ -1,0 +1,9 @@
+{
+  "short_name": "중2병 측정기",
+  "name": "대한민국 중2병 측정기",
+  "icons": [],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f6f6f6",
+  "background_color": "#f6f6f6"
+}

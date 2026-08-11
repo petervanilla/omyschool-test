@@ -42,12 +42,14 @@ export default function Loading({ onNext }: { onNext: (analysis: any) => void })
     <div className="w-full flex-grow bg-primary overflow-hidden flex flex-col items-center justify-center p-6 text-white font-sans relative">
       <div className="absolute inset-0 bg-grid-pattern-light opacity-30 pointer-events-none"></div>
 
-      <motion.div 
+      <motion.div
         animate={{ y: [0, -15, 0] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-        className="w-full max-w-xs aspect-square mb-12 flex items-center justify-center relative z-10"
+        className="w-full max-w-xs mb-12 flex items-center justify-center relative z-10 px-4"
       >
-        <img src="/image.png" alt="캐릭터" className="w-full h-full object-contain mix-blend-multiply opacity-80" />
+        <p className="text-xl md:text-2xl font-black text-center leading-relaxed">
+          놀라워요. 당신의 중2력!<br />감도 안 오는군요.
+        </p>
       </motion.div>
 
       <div className="w-full max-w-xs flex flex-col items-center z-10">

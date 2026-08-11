@@ -92,7 +92,7 @@ export default function Camera({ onNext, setPhoto }: { onNext: () => void, setPh
           <div className="relative w-full h-full border-2 border-primary overflow-hidden flex items-center justify-center bg-gray-100">
             {/* Default Placeholder Image */}
             {!isCameraOn && !hasPhoto && (
-              <img src="/image.png" alt="Face" className="w-full h-full object-cover" />
+              <img src="/face.png" alt="Face" className="w-full h-full object-cover" />
             )}
             
             {/* Live Camera Video */}

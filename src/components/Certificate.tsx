@@ -1,104 +1,254 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
+import { toPng } from 'html-to-image';
 import { PrimaryButton, SecondaryButton } from './Shared';
+import type { Diagnosis } from '../utils/scoring';
 
-export default function Certificate({ onRestart, photo, userName, grade, symptom, note }: { onRestart: () => void, photo: string | null, userName: string, grade: string, symptom: string, note: string }) {
+const GOLD = '#b8952f';
+const MICRO = '대한민국중2병감별센터·본증서의위조는흑역사로처벌됩니다·';
+
+export default function Certificate({
+  onRestart,
+  photo,
+  userName,
+  result,
+}: {
+  onRestart: () => void;
+  photo: string | null;
+  userName: string;
+  result: Diagnosis;
+}) {
+  const certRef = useRef<HTMLDivElement>(null);
+  const [busy, setBusy] = useState(false);
+
   useEffect(() => {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
+    confetti({ particleCount: 120, spread: 75, origin: { y: 0.6 } });
   }, []);
 
-  const currentDateTime = new Date().toLocaleString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const now = new Date();
+  const dateKo = `${now.getFullYear()}년 ${now.getMonth() + 1}월 ${now.getDate()}일`;
+
+  const handleDownload = async () => {
+    if (!certRef.current || busy) return;
+    setBusy(true);
+    try {
+      const dataUrl = await toPng(certRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#fdfbf7',
+        cacheBust: true,
+      });
+      const link = document.createElement('a');
+      link.download = `중2병_수료증_${userName || '익명'}_${result.gradeCode}.png`;
+      link.href = dataUrl;
+      link.click();
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: '수료증이 저장되었습니다.' }));
+    } catch (e) {
+      console.error(e);
+      window.dispatchEvent(new CustomEvent('show-toast', { detail: '저장에 실패했습니다.' }));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const text = `[국립 중2병 측정 연구소] ${userName || '익명'} · ${result.gradeCode}등급 ${result.gradeLabel}\n"${result.alterEgo}"\n종합 중2력 ${result.score}점`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '나의 중2병 수료증', text, url: window.location.href });
+      } catch {
+        /* 사용자가 취소함 */
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(`${text}\n${window.location.href}`);
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: '결과가 복사되었습니다.' }));
+      } catch {
+        window.dispatchEvent(new CustomEvent('show-toast', { detail: '공유를 지원하지 않는 환경입니다.' }));
+      }
+    }
+  };
 
   return (
-    <div className="flex-grow overflow-y-auto overflow-x-hidden bg-surface flex flex-col items-center p-4 md:p-6 relative overflow-hidden h-full">
-      <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none z-0"></div>
-      
-      <div className="flex-1 w-full max-w-xl flex flex-col min-h-0 relative z-10 gap-4">
-        <main className="w-full bg-[#fdfbf7] brutal-shadow relative p-4 md:p-8 border-2 border-[#d4af37] flex-1 flex flex-col min-h-0">
-          {/* Corner Decors */}
-          <div className="absolute top-2 left-2 w-6 h-6 md:w-8 md:h-8 border-t-2 border-l-2 border-[#d4af37] opacity-50"></div>
-          <div className="absolute top-2 right-2 w-6 h-6 md:w-8 md:h-8 border-t-2 border-r-2 border-[#d4af37] opacity-50"></div>
-          <div className="absolute bottom-2 left-2 w-6 h-6 md:w-8 md:h-8 border-b-2 border-l-2 border-[#d4af37] opacity-50"></div>
-          <div className="absolute bottom-2 right-2 w-6 h-6 md:w-8 md:h-8 border-b-2 border-r-2 border-[#d4af37] opacity-50"></div>
-          <div className="border border-[#d4af37] h-full p-6 md:p-10 flex flex-col items-center text-center bg-[#fdfbf7] relative overflow-hidden">
-            
-            <h2 className="font-serif text-[10px] md:text-xs tracking-[0.2em] uppercase text-gray-700 mb-4 font-bold shrink-0">대한민국 중2병 감별센터</h2>
-            <div className="h-px w-12 bg-[#d4af37] mx-auto mb-6 shrink-0"></div>
-            
-            <h1 className="font-serif text-3xl md:text-5xl font-black text-secondary tracking-widest mb-2 shrink-0">수료증</h1>
-            <p className="font-serif text-[10px] md:text-xs text-gray-500 uppercase tracking-widest mb-4 font-bold shrink-0">Certificate of Completion</p>
-            <div className="mb-4 w-20 h-24 border-2 border-[#d4af37] p-1 bg-white mx-auto shadow-sm shrink-0">
-              <img src={photo || "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=400&q=80"} alt="ID" className="w-full h-full object-cover grayscale contrast-125" />
-            </div>
-            <div className="mb-4 w-full max-w-[240px] mx-auto shrink-0">
-              <p className="font-serif text-[10px] md:text-xs text-gray-500 mb-1 font-bold">성명</p>
-              <div className="border-b border-secondary pb-1">
-                <h3 className="font-serif text-xl md:text-3xl font-black text-secondary tracking-widest">{userName || '알 수 없음'}</h3>
-              </div>
-            </div>
-            <p className="font-serif text-[10px] md:text-sm leading-relaxed text-secondary text-justify mb-4 overflow-y-auto shrink-0" style={{ textAlignLast: 'center' }}>
-              위 사람은 중2병 감별 센터의 모든 과정을 측정을 통하여<br/>
-              충분히 검증 하였기에 이 증서를 수여합니다.<br/>
-              지금의 이 모습도 당신의 성장의 일부였음을 인증하며 응원합니다.
+    <div className="flex-1 min-h-0 bg-surface flex flex-col relative">
+      <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none z-0" />
+
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 relative z-10">
+        <div
+          ref={certRef}
+          className="w-full max-w-[420px] mx-auto bg-[#fdfbf7] relative overflow-hidden"
+          style={{ border: `2px solid ${GOLD}`, aspectRatio: '1 / 1.414' }}
+        >
+          {/* 기요셰 배경 */}
+          <div className="absolute inset-0 guilloche opacity-80 pointer-events-none" />
+
+          {/* 마이크로텍스트 테두리 */}
+          <div className="absolute top-[3px] left-0 right-0 microtext px-1 pointer-events-none" style={{ color: `${GOLD}cc` }}>
+            {MICRO.repeat(7)}
+          </div>
+          <div className="absolute bottom-[3px] left-0 right-0 microtext px-1 pointer-events-none" style={{ color: `${GOLD}cc` }}>
+            {MICRO.repeat(7)}
+          </div>
+
+          {/* 이중 괘선 */}
+          <div className="absolute inset-[8px] pointer-events-none" style={{ border: `1px solid ${GOLD}99` }} />
+          <div className="absolute inset-[12px] pointer-events-none" style={{ border: `0.5px solid ${GOLD}55` }} />
+
+          {/* 모서리 장식 */}
+          {[
+            'top-3 left-3 border-t-2 border-l-2',
+            'top-3 right-3 border-t-2 border-r-2',
+            'bottom-3 left-3 border-b-2 border-l-2',
+            'bottom-3 right-3 border-b-2 border-r-2',
+          ].map((c, i) => (
+            <div key={i} className={`absolute w-7 h-7 ${c} pointer-events-none`} style={{ borderColor: GOLD }} />
+          ))}
+
+          {/* 워터마크 */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <span className="text-[150px] font-black opacity-[0.045] select-none" style={{ color: GOLD }}>
+              {result.element.sign}
+            </span>
+          </div>
+
+          {/* ---------- 내용 ---------- */}
+          <div className="relative z-10 h-full flex flex-col items-center text-center px-6 py-7">
+            {/* 기관명 */}
+            <p className="font-serif text-[9px] tracking-[0.28em] font-bold shrink-0" style={{ color: '#6b6250' }}>
+              국립 중2병 측정 연구소
             </p>
-            <div className="w-full flex flex-row justify-between items-end mt-auto gap-2 md:gap-4 px-2 relative z-10 shrink-0">
-              <div className="w-1/3 text-center">
-                <div className="border-b border-secondary pb-1 mb-1">
-                  <p className="font-serif text-[8px] md:text-xs text-secondary font-bold">{currentDateTime}</p>
-                </div>
-                <p className="font-serif text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest font-bold">Date</p>
+            <p className="font-serif text-[6px] tracking-[0.22em] font-bold mt-0.5 shrink-0" style={{ color: '#9b9484' }}>
+              NATIONAL CHU-2 RESEARCH INSTITUTE
+            </p>
+            <div className="h-px w-14 my-2.5 shrink-0" style={{ background: GOLD }} />
+
+            {/* 제목 */}
+            <h1 className="font-serif text-[32px] font-black text-secondary tracking-[0.22em] leading-none shrink-0 emboss">
+              수료증
+            </h1>
+            <p className="font-serif text-[7.5px] uppercase tracking-[0.3em] font-bold mt-1.5 shrink-0" style={{ color: '#8a8371' }}>
+              Certificate of Completion
+            </p>
+            <p className="font-mono text-[7px] font-bold mt-1 shrink-0" style={{ color: '#a09a88' }}>
+              제 {result.serial} 호
+            </p>
+
+            {/* 사진 */}
+            <div
+              className="mt-3 w-[62px] h-[78px] p-[3px] bg-white shrink-0 relative"
+              style={{ border: `1.5px solid ${GOLD}` }}
+            >
+              <img
+                src={photo || './face.png'}
+                alt="ID"
+                className="w-full h-full object-cover grayscale contrast-125"
+              />
+            </div>
+
+            {/* 성명 */}
+            <div className="mt-3 w-full max-w-[230px] shrink-0">
+              <p className="font-serif text-[8px] font-bold mb-0.5" style={{ color: '#8a8371' }}>
+                성명
+              </p>
+              <div className="border-b pb-1" style={{ borderColor: '#151050' }}>
+                <h3 className="font-serif text-[22px] font-black text-secondary tracking-[0.15em] truncate">
+                  {userName || '알 수 없음'}
+                </h3>
               </div>
-              <div className="w-1/3 flex justify-center relative">
-                {/* Wax Seal with Ribbons */}
-                <div className="relative transform -rotate-12">
-                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-6 h-10 md:w-8 md:h-12 bg-red-800 -rotate-12 z-0 origin-top skew-y-12 shadow-sm border border-red-950"></div>
-                  <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 w-6 h-10 md:w-8 md:h-12 bg-red-700 rotate-12 z-0 origin-top -skew-y-12 shadow-sm border border-red-950"></div>
-                  <div className="w-10 h-10 md:w-16 md:h-16 rounded-full flex items-center justify-center text-[#d4af37] relative bg-red-600 shadow-md border-2 border-red-800 z-10 shrink-0 shadow-[inset_0_0_10px_rgba(0,0,0,0.5)]">
-                    <div className="absolute inset-0 border border-dashed border-red-800 m-1 rounded-full opacity-50"></div>
-                    <div className="text-center drop-shadow-md">
-                      <span className="material-symbols-outlined block text-base md:text-2xl text-[#d4af37]">workspace_premium</span>
-                    </div>
+            </div>
+
+            {/* 등급 + 자아 */}
+            <div className="mt-3 flex items-stretch gap-2 w-full max-w-[250px] shrink-0">
+              <div className="flex-1 border px-2 py-1.5" style={{ borderColor: GOLD, background: '#fffdf6' }}>
+                <p className="font-serif text-[6.5px] font-bold tracking-[0.16em]" style={{ color: '#8a8371' }}>
+                  판정 등급
+                </p>
+                <p className="text-[17px] font-black text-primary leading-tight emboss">{result.gradeCode}</p>
+                <p className="text-[7.5px] font-black text-secondary truncate">{result.gradeLabel}</p>
+              </div>
+              <div className="flex-[1.5] border px-2 py-1.5 text-left" style={{ borderColor: GOLD, background: '#fffdf6' }}>
+                <p className="font-serif text-[6.5px] font-bold tracking-[0.16em]" style={{ color: '#8a8371' }}>
+                  이세계 자아 · {result.element.name}
+                </p>
+                <p className="text-[9.5px] font-black text-secondary leading-tight mt-0.5 break-keep">
+                  {result.alterEgo}
+                </p>
+                <p className="text-[7px] font-bold mt-0.5" style={{ color: '#8a8371' }}>
+                  종합 중2력 {result.score}점
+                </p>
+              </div>
+            </div>
+
+            {/* 본문 */}
+            <p
+              className="font-serif text-[9px] leading-[1.75] text-secondary mt-3.5 shrink-0 break-keep px-1"
+              style={{ textAlignLast: 'center' }}
+            >
+              위 사람은 본 연구소가 시행한 중2병 측정 전 과정을 성실히 이수하였으며,
+              그 결과가 위와 같음을 확인하여 이 증서를 수여합니다.
+              <br />
+              <span className="font-bold">지금의 이 모습 또한 당신의 성장의 일부였음을 인증하며, 응원합니다.</span>
+            </p>
+
+            {/* 하단: 날짜 / 인장 / 서명 */}
+            <div className="w-full flex items-end justify-between mt-auto gap-1 px-1 shrink-0">
+              <div className="w-[32%] text-center">
+                <div className="border-b pb-1 mb-1" style={{ borderColor: '#151050' }}>
+                  <p className="font-serif text-[7.5px] text-secondary font-bold">{dateKo}</p>
+                </div>
+                <p className="font-serif text-[6px] uppercase tracking-[0.18em] font-bold" style={{ color: '#8a8371' }}>
+                  Date
+                </p>
+              </div>
+
+              {/* 밀랍 인장 */}
+              <div className="w-[32%] flex justify-center relative">
+                <div className="relative -rotate-12">
+                  <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 w-5 h-9 bg-red-800 -rotate-12 origin-top skew-y-12 border border-red-950" />
+                  <div className="absolute -bottom-7 left-1/2 -translate-x-1/2 w-5 h-9 bg-red-700 rotate-12 origin-top -skew-y-12 border border-red-950" />
+                  <div
+                    className="w-12 h-12 rounded-full flex items-center justify-center relative bg-red-600 border-2 border-red-800 z-10"
+                    style={{ boxShadow: 'inset 0 0 10px rgba(0,0,0,0.5)' }}
+                  >
+                    <div className="absolute inset-1 rounded-full border border-dashed border-red-900/60" />
+                    <span className="text-[9px] font-black leading-[1.1] text-center" style={{ color: GOLD }}>
+                      {result.element.sign}
+                      <br />
+                      <span className="text-[4.5px] tracking-tight">인증필</span>
+                    </span>
                   </div>
                 </div>
               </div>
-              <div className="w-1/3 text-center">
-                <div className="border-b border-secondary pb-1 mb-1 relative h-6 flex items-end justify-center">
-                  <span className="text-sm md:text-2xl text-secondary transform -rotate-12 italic absolute bottom-0.5" style={{ fontFamily: '"Caveat", "Brush Script MT", cursive' }}>Darkness</span>
+
+              <div className="w-[32%] text-center">
+                <div className="border-b pb-1 mb-1 relative h-6 flex items-end justify-center" style={{ borderColor: '#151050' }}>
+                  <span
+                    className="text-[17px] text-secondary -rotate-12 italic absolute bottom-0.5"
+                    style={{ fontFamily: '"Caveat", "Brush Script MT", cursive' }}
+                  >
+                    Darkness
+                  </span>
                 </div>
-                <p className="font-serif text-[8px] md:text-[9px] text-gray-500 uppercase tracking-widest font-bold">감별 센터장</p>
+                <p className="font-serif text-[6px] uppercase tracking-[0.18em] font-bold" style={{ color: '#8a8371' }}>
+                  감별 센터장
+                </p>
               </div>
             </div>
           </div>
-        </main>
-        <div className="flex flex-row gap-2 w-full shrink-0">
-          <PrimaryButton className="flex-1 text-[10px] md:text-sm py-2">
-            <span className="material-symbols-outlined text-sm md:text-base">download</span> 다운로드
-          </PrimaryButton>
-          <SecondaryButton onClick={async () => {
-            if (navigator.share) {
-              try {
-                await navigator.share({
-                  title: '나의 중2병 수료증',
-                  text: '대한민국 중2병 감별센터에서 측정을 완료했습니다.',
-                  url: window.location.href,
-                });
-              } catch (err) {
-                console.error('Share failed:', err);
-              }
-            } else {
-              alert('공유하기 기능을 지원하지 않는 환경입니다.');
-            }
-          }} className="flex-1 text-[10px] md:text-sm py-2 border border-secondary text-secondary hover:bg-secondary hover:text-white transition-colors bg-white">
-            <span className="material-symbols-outlined text-sm md:text-base">share</span> 공유하기
-          </SecondaryButton>
-          <SecondaryButton onClick={onRestart} className="flex-1 text-[10px] md:text-sm py-2 border border-secondary text-secondary hover:bg-secondary hover:text-white transition-colors bg-white">
-            <span className="material-symbols-outlined text-sm md:text-base">replay</span> 다시 검사
-          </SecondaryButton>
         </div>
+      </div>
+
+      {/* 버튼 */}
+      <div className="flex gap-2 w-full shrink-0 p-3 border-t border-outline bg-white z-20">
+        <PrimaryButton onClick={handleDownload} disabled={busy} className="flex-1 text-[11px] py-2.5">
+          <span className="material-symbols-outlined text-base">download</span>
+          {busy ? '저장 중' : '다운로드'}
+        </PrimaryButton>
+        <SecondaryButton onClick={handleShare} className="flex-1 text-[11px] py-2.5">
+          <span className="material-symbols-outlined text-base">share</span> 공유
+        </SecondaryButton>
+        <SecondaryButton onClick={onRestart} className="flex-1 text-[11px] py-2.5">
+          <span className="material-symbols-outlined text-base">replay</span> 재검사
+        </SecondaryButton>
       </div>
     </div>
   );

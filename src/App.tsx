@@ -8,6 +8,7 @@ import Loading from './components/Loading';
 import Report from './components/Report';
 import License from './components/License';
 import Certificate from './components/Certificate';
+import { diagnose, type Answer, type Diagnosis } from './utils/scoring';
 
 export enum Step {
   HOME, CHAT, CAMERA, BINGO, LOADING, REPORT, LICENSE, CERTIFICATE
@@ -15,7 +16,7 @@ export enum Step {
 
 export default function App() {
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  
+
   useEffect(() => {
     const handleToast = (e: any) => {
       setToastMessage(e.detail);
@@ -29,9 +30,12 @@ export default function App() {
   const [photo, setPhoto] = useState<string | null>(null);
   const [isDark, setIsDark] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>('');
-  const [grade, setGrade] = useState<string>('S-Class 주인공');
-  const [symptom, setSymptom] = useState<string>('과몰입, 흑염룡 각성 대기');
-  const [note, setNote] = useState<string>('오른팔 봉인 중 (접근 주의)');
+
+  // 실제 측정 데이터
+  const [answers, setAnswers] = useState<Answer[]>([]);
+  const [bingoSetIndex, setBingoSetIndex] = useState<number>(0);
+  const [bingoSelected, setBingoSelected] = useState<number[]>([]);
+  const [result, setResult] = useState<Diagnosis | null>(null);
 
   useEffect(() => {
     if (isDark) {
@@ -41,11 +45,17 @@ export default function App() {
     }
   }, [isDark]);
 
-  const toggleDarkMode = () => setIsDark(!isDark);
-
   const nextStep = (next: Step) => {
     window.scrollTo(0, 0);
     setStep(next);
+  };
+
+  const restart = () => {
+    setPhoto(null);
+    setAnswers([]);
+    setBingoSelected([]);
+    setResult(null);
+    nextStep(Step.HOME);
   };
 
   return (
@@ -53,18 +63,50 @@ export default function App() {
       <div className="w-full max-w-[430px] h-full bg-surface relative shadow-2xl overflow-hidden flex flex-col">
 
         {step === Step.HOME && <Home onNext={() => nextStep(Step.CHAT)} />}
-        {step === Step.CHAT && <Chat onNext={() => nextStep(Step.CAMERA)} />}
+
+        {step === Step.CHAT && (
+          <Chat
+            onNext={(collected) => {
+              setAnswers(collected);
+              nextStep(Step.CAMERA);
+            }}
+          />
+        )}
+
         {step === Step.CAMERA && <Camera onNext={() => nextStep(Step.BINGO)} setPhoto={setPhoto} />}
-        {step === Step.BINGO && <Bingo onNext={() => nextStep(Step.LOADING)} userName={userName} setUserName={setUserName} />}
-        {step === Step.LOADING && <Loading onNext={(analysis) => {
-          setGrade(analysis.grade);
-          setSymptom(analysis.symptom);
-          setNote(analysis.note);
-          nextStep(Step.REPORT);
-        }} />}
-        {step === Step.REPORT && <Report onNext={() => nextStep(Step.LICENSE)} photo={photo} userName={userName} grade={grade} symptom={symptom} note={note} />}
-        {step === Step.LICENSE && <License onNext={() => nextStep(Step.CERTIFICATE)} photo={photo} userName={userName} grade={grade} symptom={symptom} note={note} />}
-        {step === Step.CERTIFICATE && <Certificate onRestart={() => nextStep(Step.HOME)} photo={photo} userName={userName} grade={grade} symptom={symptom} note={note} />}
+
+        {step === Step.BINGO && (
+          <Bingo
+            onNext={(setIndex, selected) => {
+              setBingoSetIndex(setIndex);
+              setBingoSelected(selected);
+              nextStep(Step.LOADING);
+            }}
+            userName={userName}
+            setUserName={setUserName}
+          />
+        )}
+
+        {step === Step.LOADING && (
+          <Loading
+            onNext={() => {
+              setResult(diagnose({ userName, answers, bingoSetIndex, bingoSelected }));
+              nextStep(Step.REPORT);
+            }}
+          />
+        )}
+
+        {step === Step.REPORT && result && (
+          <Report onNext={() => nextStep(Step.LICENSE)} photo={photo} userName={userName} result={result} />
+        )}
+
+        {step === Step.LICENSE && result && (
+          <License onNext={() => nextStep(Step.CERTIFICATE)} photo={photo} userName={userName} result={result} />
+        )}
+
+        {step === Step.CERTIFICATE && result && (
+          <Certificate onRestart={restart} photo={photo} userName={userName} result={result} />
+        )}
 
         <AnimatePresence>
           {toastMessage && (

@@ -141,4 +141,79 @@
         transparent 8px
     );
   }
+
+  /* ---- 보안 문서 디테일 ---- */
+
+  /* 기요셰(guilloche) — 지폐·여권의 물결 무늬 */
+  .guilloche {
+    background-image:
+      repeating-radial-gradient(circle at 18% 28%, transparent 0 5px, rgba(21,16,80,0.055) 5px 6px),
+      repeating-radial-gradient(circle at 82% 72%, transparent 0 7px, rgba(255,81,0,0.05) 7px 8px),
+      repeating-radial-gradient(circle at 50% 110%, transparent 0 9px, rgba(21,16,80,0.035) 9px 10px),
+      repeating-linear-gradient(48deg, transparent 0 9px, rgba(21,16,80,0.028) 9px 10px);
+  }
+
+  /* 홀로그램 패치 */
+  .holo-patch {
+    background: conic-gradient(
+      from 210deg,
+      rgba(255,81,0,0.55), rgba(255,212,0,0.5), rgba(0,224,184,0.5),
+      rgba(77,124,255,0.5), rgba(193,77,255,0.5), rgba(255,81,0,0.55)
+    );
+    mix-blend-mode: color-dodge;
+  }
+
+  /* 광택 스트라이프 */
+  .holo-sheen {
+    background: repeating-linear-gradient(
+      115deg,
+      rgba(255,255,255,0.35) 0 2px,
+      transparent 2px 6px
+    );
+  }
+
+  /* 마이크로텍스트 — 확대해야 읽히는 미세 인쇄 */
+  .microtext {
+    font-size: 3.4px;
+    line-height: 1;
+    letter-spacing: 0.16em;
+    white-space: nowrap;
+    overflow: hidden;
+    user-select: none;
+  }
+
+  /* 여권 하단 기계판독영역(MRZ) */
+  .mrz {
+    font-family: 'Courier Prime', 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  /* 잠상(潛像) — 각도에 따라 보이는 숨은 문자 */
+  .latent {
+    background-image: repeating-linear-gradient(
+      45deg,
+      rgba(21,16,80,0.16) 0 1px,
+      transparent 1px 3px
+    );
+  }
+
+  /* 엠보싱 각인 */
+  .emboss {
+    text-shadow: 0 1px 0 rgba(255,255,255,0.85), 0 -1px 0 rgba(0,0,0,0.22);
+  }
+
+  /* 도장 잉크 번짐 */
+  .stamp-ink {
+    filter: drop-shadow(0 0 0.4px rgba(190,20,20,0.65));
+  }
+
+  :root.dark .guilloche {
+    background-image:
+      repeating-radial-gradient(circle at 18% 28%, transparent 0 5px, rgba(255,255,255,0.05) 5px 6px),
+      repeating-radial-gradient(circle at 82% 72%, transparent 0 7px, rgba(255,81,0,0.06) 7px 8px),
+      repeating-linear-gradient(48deg, transparent 0 9px, rgba(255,255,255,0.03) 9px 10px);
+  }
 }

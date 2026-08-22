@@ -44,21 +44,25 @@ const BINGO_SETS = [
   ]
 ];
 
-export default function Bingo({ onNext, userName, setUserName }: { onNext: () => void, userName: string, setUserName: (name: string) => void }) {
+export default function Bingo({ onNext, userName, setUserName }: { onNext: (setIndex: number, selected: number[]) => void, userName: string, setUserName: (name: string) => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [items, setItems] = useState<{ ko: string, en: string }[]>([]);
+  const [setIndex, setSetIndex] = useState(0);
 
   useEffect(() => {
-    const randomSetIndex = Math.floor(Math.random() * 5);
+    const randomSetIndex = Math.floor(Math.random() * BINGO_SETS.length);
+    setSetIndex(randomSetIndex);
     const shuffled = [...BINGO_SETS[randomSetIndex]].sort(() => 0.5 - Math.random());
     setItems(shuffled.slice(0, 25));
   }, []);
 
   const toggle = (i: number) => {
-    const newSet = new Set(selected);
-    if (newSet.has(i)) newSet.delete(i);
-    else newSet.add(i);
-    setSelected(newSet);
+    setSelected((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(i)) newSet.delete(i);
+      else newSet.add(i);
+      return newSet;
+    });
   };
 
   return (
@@ -68,8 +72,18 @@ export default function Bingo({ onNext, userName, setUserName }: { onNext: () =>
       <main className="flex-grow flex flex-col p-4 md:p-6 max-w-2xl mx-auto w-full gap-6 items-center justify-center">
 
         <div className="text-center mb-2 z-10 w-full">
-          <h2 className="text-[45px] font-black text-secondary mb-1 tracking-tighter">빙고 테스트</h2>
-          <p className="text-gray-500 font-bold text-sm">해당하는 항목을 모두 선택하세요</p>
+          <h2 className="text-[45px] font-black text-secondary mb-1 tracking-tighter">중2력 빙고</h2>
+          <p className="text-gray-500 font-bold text-sm">해당하는 칸을 <span className="text-primary">전부</span> 누르십시오</p>
+          <p className="text-gray-400 font-bold text-[11px] mt-1">정직할수록 측정 정확도가 올라갑니다</p>
+
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <span className="px-3 py-1 border border-outline rounded-full text-[11px] font-black text-secondary bg-white">
+              선택 {selected.size}/25
+            </span>
+            <span className="px-3 py-1 border border-primary rounded-full text-[11px] font-black text-primary bg-white">
+              중2력 {Math.round((selected.size / 25) * 100)}
+            </span>
+          </div>
         </div>
 
         <section className="w-full aspect-square max-w-lg mx-auto grid grid-cols-5 grid-rows-5 border-t border-l border-outline bg-white brutal-shadow">
@@ -87,7 +101,7 @@ export default function Bingo({ onNext, userName, setUserName }: { onNext: () =>
 
         <div className="w-full max-w-md mx-auto mt-4 flex flex-col items-center gap-4">
           <div className="w-full flex flex-col items-center">
-            <label className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">이름따위 (안남기겠지만)</label>
+            <label className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">성명 (기록 보존용)</label>
             <div className="relative w-full flex justify-center">
               <input 
                 type="text" 
@@ -100,7 +114,7 @@ export default function Bingo({ onNext, userName, setUserName }: { onNext: () =>
               )}
             </div>
           </div>
-          <PrimaryButton onClick={onNext} disabled={userName.trim() === ""} className="w-full text-sm md:text-base">
+          <PrimaryButton onClick={() => onNext(setIndex, [...selected])} disabled={userName.trim() === ""} className="w-full text-sm md:text-base">
           증후군 분석하기 <span className="material-symbols-outlined text-lg">barcode_scanner</span>
           </PrimaryButton>
         </div>

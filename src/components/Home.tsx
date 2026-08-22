@@ -34,6 +34,7 @@ export default function Home({ onNext }: { onNext: () => void }) {
           <h1 className="text-[42px] md:text-[50px] font-black text-secondary tracking-tight mb-2 leading-[1.1]">
             대한민국<br />중2병 측정기
           </h1>
+          <p className="text-[10px] font-bold tracking-[0.22em] text-gray-500 uppercase">국립 중2병 측정 연구소</p>
           <div className="w-16 h-px bg-gray-400 mt-4"></div>
         </header>
 
@@ -63,7 +64,7 @@ export default function Home({ onNext }: { onNext: () => void }) {
                 <h2 className="text-[28px] md:text-[32px] font-normal mb-3">너, 중2병이지?</h2>
                 <div className="flex items-center gap-2 text-gray-500 font-bold text-xs md:text-sm">
                   <span className="w-4 h-px bg-primary"></span>
-                  <p>딱 10초!면 널 측정해 줄게!</p>
+                  <p>8문항이면 충분합니다. 숨겨도 소용없습니다.</p>
                   <span className="w-4 h-px bg-primary"></span>
                 </div>
               </motion.div>
@@ -76,10 +77,10 @@ export default function Home({ onNext }: { onNext: () => void }) {
                 transition={{ duration: 0.5 }}
                 className="absolute w-full flex flex-col items-center"
               >
-                <h2 className="text-[28px] md:text-[32px] font-normal mb-3 text-secondary">큰일이다!</h2>
+                <h2 className="text-[28px] md:text-[32px] font-normal mb-3 text-secondary">우리 애... 괜찮은 걸까요?</h2>
                 <div className="flex items-center gap-2 text-gray-500 font-bold text-xs md:text-sm">
                   <span className="w-4 h-px bg-primary"></span>
-                  <p>우리 애가 왜 저러는지 알려드리죠.</p>
+                  <p>갑자기 말수가 줄었다면, 먼저 측정해 보세요.</p>
                   <span className="w-4 h-px bg-primary"></span>
                 </div>
               </motion.div>
@@ -92,11 +93,18 @@ export default function Home({ onNext }: { onNext: () => void }) {
         </PrimaryButton>
         {history.length > 0 && (
           <div className="w-full z-10 border-t border-outline pt-4 mt-6">
-            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 text-center">Previous Diagnoses</p>
+            <p className="text-[10px] font-bold text-gray-500 uppercase tracking-widest mb-2 text-center">감별 기록 보관함</p>
             <div className="flex gap-2 overflow-x-auto pb-2 justify-center">
               {history.map((item, idx) => (
-                <div key={item.id} className="w-12 h-16 shrink-0 border border-outline bg-white p-1 brutal-shadow">
-                  <img src={item.photo} alt={`History ${idx}`} className="w-full h-full object-cover grayscale" />
+                <div key={item.id} className="shrink-0 flex flex-col items-center gap-1">
+                  <div className="w-12 h-16 border border-outline bg-white p-1 brutal-shadow">
+                    <img src={item.photo} alt={`기록 ${idx + 1}`} className="w-full h-full object-cover grayscale" />
+                  </div>
+                  {item.grade && (
+                    <span className="text-[8px] font-black text-primary tracking-tight">
+                      {String(item.grade).split('-')[0]}
+                    </span>
+                  )}
                 </div>
               ))}
             </div>

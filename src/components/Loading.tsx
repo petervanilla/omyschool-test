@@ -3,13 +3,13 @@ import { motion, AnimatePresence } from 'motion/react';
 import { playMysteriousSound } from '../utils/audio';
 
 const LOADING_TEXTS = [
-  "뇌파 데이터 동기화 중...",
-  "숨겨진 흑염룡의 기운 탐지 중...",
-  "과거의 흑역사 스캔 중...",
-  "전투력 및 중2력 계산 중..."
+  "오라 센서 응답 대기 중...",
+  "봉인 상태 육안 대조 중...",
+  "흑역사 아카이브 대조 중...",
+  "중2력 최종 산출 중..."
 ];
 
-export default function Loading({ onNext }: { onNext: (analysis: any) => void }) {
+export default function Loading({ onNext }: { onNext: () => void }) {
   const [textIndex, setTextIndex] = useState(0);
 
   useEffect(() => {
@@ -21,20 +21,7 @@ export default function Loading({ onNext }: { onNext: (analysis: any) => void })
 
   useEffect(() => {
     playMysteriousSound();
-    
-    const GRADES = ["S-Class 주인공", "A-Class 흑염룡", "B-Class 고독한 늑대", "C-Class 방구석 철학자", "F-Class 일반인"];
-    const SYMPTOMS = ["과몰입, 흑염룡 각성 대기", "다크모드 고집, 이어폰 필수", "망상 전문가, 새벽 감성", "혼자 영화 찍음, 세상은 썩었어", "지극히 평범함, 도파민 중독"];
-    const NOTES = ["오른팔 봉인 중 (접근 주의)", "밤 12시 이후 감성 폭발 (위험)", "비 오는 날 혼자 걷기 좋아함", "시크릿 폴더 용량 초과", "정상인 코스프레 중"];
-    
-    const randomIdx = Math.floor(Math.random() * GRADES.length);
-    
-    const timer = setTimeout(() => {
-      onNext({
-        grade: GRADES[randomIdx],
-        symptom: SYMPTOMS[randomIdx],
-        note: NOTES[randomIdx]
-      });
-    }, 3000);
+    const timer = setTimeout(() => onNext(), 3000);
     return () => clearTimeout(timer);
   }, [onNext]);
 
@@ -48,7 +35,7 @@ export default function Loading({ onNext }: { onNext: (analysis: any) => void })
         className="w-full max-w-xs mb-12 flex items-center justify-center relative z-10 px-4"
       >
         <p className="text-xl md:text-2xl font-black text-center leading-relaxed">
-          놀라워요. 당신의 중2력!<br />감도 안 오는군요.
+          잠시만 기다리십시오.<br />측정기가 진정되는 중입니다.
         </p>
       </motion.div>
 

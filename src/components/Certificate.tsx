@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import confetti from 'canvas-confetti';
 import { toPng } from 'html-to-image';
-import { PrimaryButton, SecondaryButton } from './Shared';
+import { PrimaryButton, SecondaryButton, TopBar, DocTabs } from './Shared';
 import type { Diagnosis } from '../utils/scoring';
 
 const GOLD = '#b8952f';
@@ -9,11 +9,13 @@ const MICRO = '대한민국중2병감별센터·본증서의위조는흑역사�
 
 export default function Certificate({
   onRestart,
+  onBack,
   photo,
   userName,
   result,
 }: {
   onRestart: () => void;
+  onBack: () => void;
   photo: string | null;
   userName: string;
   result: Diagnosis;
@@ -70,13 +72,22 @@ export default function Certificate({
 
   return (
     <div className="flex-1 min-h-0 bg-surface flex flex-col relative">
+      <TopBar title="DIAGNOSTIC PROTOCOL" currentStep={5} />
+      <DocTabs active="certificate" onSelect={(t) => t === 'license' && onBack()} />
+
       <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none z-0" />
 
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 py-4 relative z-10">
+      <div className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center px-4 py-3 relative z-10">
         <div
           ref={certRef}
-          className="w-full max-w-[420px] mx-auto bg-[#fdfbf7] relative overflow-hidden"
-          style={{ border: `2px solid ${GOLD}`, aspectRatio: '1 / 1.414' }}
+          className="bg-[#fdfbf7] relative overflow-hidden shrink-0"
+          style={{
+            border: `2px solid ${GOLD}`,
+            aspectRatio: '1 / 1.414',
+            height: 'min(100%, 620px)',
+            minHeight: 430,
+            maxWidth: '100%',
+          }}
         >
           {/* 기요셰 배경 */}
           <div className="absolute inset-0 guilloche opacity-80 pointer-events-none" />

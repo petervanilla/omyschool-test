@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
-import { TopBar, PrimaryButton, SecondaryButton } from './Shared';
+import { TopBar, PrimaryButton, SecondaryButton, DocTabs } from './Shared';
 import type { Diagnosis } from '../utils/scoring';
 
 const MICRO = '중2병감별센터·NATIONALCHU2RESEARCHINSTITUTE·본증서는위조할수없습니다·';
@@ -309,13 +309,14 @@ export default function License({
   return (
     <div className="flex-1 min-h-0 bg-surface flex flex-col">
       <TopBar title="DIAGNOSTIC PROTOCOL" currentStep={5} />
+      <DocTabs active="license" onSelect={(t) => t === 'certificate' && onNext()} />
 
       <main className="flex-1 min-h-0 overflow-y-auto flex items-center justify-center p-4 relative perspective-1000">
         <div className="absolute inset-0 bg-grid-pattern opacity-10 pointer-events-none z-0" />
         {/* 화면 높이에 맞춰 카드가 항상 들어가도록 계산 */}
         <div
           className="relative w-full max-w-[330px] shrink-0"
-          style={{ height: 'min(calc(100dvh - 262px), 486px)', minHeight: 400 }}
+          style={{ height: 'min(100%, 486px)', minHeight: 400 }}
         >
           <Card />
         </div>
@@ -326,7 +327,7 @@ export default function License({
           <span className="material-symbols-outlined text-base">fullscreen</span> 크게 보기
         </SecondaryButton>
         <PrimaryButton onClick={onNext} className="flex-1 text-xs py-2.5">
-          <span className="material-symbols-outlined text-base">workspace_premium</span> 수료증
+          <span className="material-symbols-outlined text-base">workspace_premium</span> 수료증 보기
         </PrimaryButton>
       </div>
 

@@ -7,7 +7,17 @@ type Msg = { sender: 'inspector' | 'doctor' | 'user'; text: string };
 
 const ANSWER_LABELS = ['아니요', '조금요', '네'] as const;
 
-export default function Chat({ onNext }: { onNext: (answers: Answer[]) => void }) {
+export default function Chat({
+  onNext,
+  userName,
+  setUserName,
+}: {
+  onNext: (answers: Answer[]) => void;
+  userName: string;
+  setUserName: (n: string) => void;
+}) {
+  const [anonId] = useState(() => Math.random().toString(36).slice(2, 6).toUpperCase());
+  const anonName = `익명의 각성자 #${anonId}`;
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [messages, setMessages] = useState<Msg[]>([
@@ -65,6 +75,23 @@ export default function Chat({ onNext }: { onNext: (answers: Answer[]) => void }
   return (
     <div className="h-full flex flex-col flex-grow overflow-hidden bg-surface">
       <TopBar title="DIAGNOSTIC PROTOCOL" currentStep={1} />
+
+      {/* 접수 — 성명 등록 */}
+      <div className="w-full max-w-2xl mx-auto px-6 pt-4 shrink-0">
+        <div className="flex items-center gap-2 border border-outline bg-white brutal-shadow px-3 py-2">
+          <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest shrink-0">
+            접수 · 성명
+          </span>
+          <input
+            type="text"
+            value={userName}
+            onChange={(e) => setUserName(e.target.value)}
+            placeholder={anonName}
+            maxLength={20}
+            className="flex-1 min-w-0 bg-transparent text-sm font-black text-secondary outline-none placeholder:text-gray-400 placeholder:font-bold"
+          />
+        </div>
+      </div>
 
       <div className="w-full max-w-2xl mx-auto px-6 py-4 z-10 bg-surface shrink-0">
         <div className="flex justify-between items-center mb-2">
@@ -163,7 +190,13 @@ export default function Chat({ onNext }: { onNext: (answers: Answer[]) => void }
               ))}
             </div>
           ) : (
-            <PrimaryButton onClick={() => onNext(answers)} className="w-full">
+            <PrimaryButton
+              onClick={() => {
+                if (!userName.trim()) setUserName(anonName);
+                onNext(answers);
+              }}
+              className="w-full"
+            >
               <span className="material-symbols-outlined">photo_camera</span> 육안 확인 진행
             </PrimaryButton>
           )}

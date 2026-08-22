@@ -44,7 +44,7 @@ const BINGO_SETS = [
   ]
 ];
 
-export default function Bingo({ onNext, userName, setUserName }: { onNext: (setIndex: number, selected: number[]) => void, userName: string, setUserName: (name: string) => void }) {
+export default function Bingo({ onNext }: { onNext: (setIndex: number, selected: number[]) => void }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [items, setItems] = useState<{ ko: string, en: string }[]>([]);
   const [setIndex, setSetIndex] = useState(0);
@@ -99,22 +99,11 @@ export default function Bingo({ onNext, userName, setUserName }: { onNext: (setI
           ))}
         </section>
 
-        <div className="w-full max-w-md mx-auto mt-4 flex flex-col items-center gap-4">
-          <div className="w-full flex flex-col items-center">
-            <label className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-widest">성명 (기록 보존용)</label>
-            <div className="relative w-full flex justify-center">
-              <input 
-                type="text" 
-                value={userName} 
-                onChange={(e) => setUserName(e.target.value)} 
-                className="w-full max-w-[200px] bg-white border-2 border-secondary brutal-shadow px-2 py-2 text-center text-lg font-black text-secondary outline-none placeholder:text-transparent focus:bg-gray-50 transition-colors"
-              />
-              {userName.length === 0 && (
-                <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-0.5 h-6 bg-primary animate-pulse pointer-events-none"></span>
-              )}
-            </div>
-          </div>
-          <PrimaryButton onClick={() => onNext(setIndex, [...selected])} disabled={userName.trim() === ""} className="w-full text-sm md:text-base">
+        <div className="w-full max-w-md mx-auto mt-4 flex flex-col items-center gap-3">
+          <p className="text-[11px] font-bold text-gray-400">
+            {selected.size === 0 ? '해당 사항이 없다면 그대로 진행하십시오' : `${selected.size}개 항목이 기록되었습니다`}
+          </p>
+          <PrimaryButton onClick={() => onNext(setIndex, [...selected])} className="w-full text-sm md:text-base">
           증후군 분석하기 <span className="material-symbols-outlined text-lg">barcode_scanner</span>
           </PrimaryButton>
         </div>

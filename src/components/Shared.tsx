@@ -15,6 +15,37 @@ export const TopBar = ({ title, currentStep = 1, totalSteps = 5 }: { title: stri
   </header>
 );
 
+/** 신분증 ↔ 수료증 전환 탭 */
+export const DocTabs = ({
+  active,
+  onSelect,
+}: {
+  active: 'license' | 'certificate';
+  onSelect: (t: 'license' | 'certificate') => void;
+}) => (
+  <div className="shrink-0 w-full bg-surface border-b border-outline px-4 py-2.5 z-30">
+    <div className="max-w-[280px] mx-auto grid grid-cols-2 border border-secondary rounded-xl overflow-hidden bg-white">
+      {([
+        ['license', '신분증', 'badge'],
+        ['certificate', '수료증', 'workspace_premium'],
+      ] as const).map(([key, label, icon]) => (
+        <button
+          key={key}
+          onClick={() => onSelect(key)}
+          className={`flex items-center justify-center gap-1.5 py-2 text-xs font-black tracking-wider transition-colors ${
+            active === key
+              ? 'bg-secondary text-white'
+              : 'bg-white text-secondary hover:bg-gray-100'
+          }`}
+        >
+          <span className="material-symbols-outlined text-base">{icon}</span>
+          {label}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
 export const PrimaryButton = ({ children, onClick, className = "", disabled = false }: any) => (
   <button 
     onClick={onClick}

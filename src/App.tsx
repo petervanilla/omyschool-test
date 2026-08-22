@@ -66,6 +66,8 @@ export default function App() {
 
         {step === Step.CHAT && (
           <Chat
+            userName={userName}
+            setUserName={setUserName}
             onNext={(collected) => {
               setAnswers(collected);
               nextStep(Step.CAMERA);
@@ -82,8 +84,6 @@ export default function App() {
               setBingoSelected(selected);
               nextStep(Step.LOADING);
             }}
-            userName={userName}
-            setUserName={setUserName}
           />
         )}
 
@@ -101,11 +101,22 @@ export default function App() {
         )}
 
         {step === Step.LICENSE && result && (
-          <License onNext={() => nextStep(Step.CERTIFICATE)} photo={photo} userName={userName} result={result} />
+          <License
+            onNext={() => nextStep(Step.CERTIFICATE)}
+            photo={photo}
+            userName={userName}
+            result={result}
+          />
         )}
 
         {step === Step.CERTIFICATE && result && (
-          <Certificate onRestart={restart} photo={photo} userName={userName} result={result} />
+          <Certificate
+            onRestart={restart}
+            onBack={() => nextStep(Step.LICENSE)}
+            photo={photo}
+            userName={userName}
+            result={result}
+          />
         )}
 
         <AnimatePresence>

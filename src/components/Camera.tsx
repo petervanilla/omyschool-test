@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { TopBar, PrimaryButton, SecondaryButton } from './Shared';
 import { motion, AnimatePresence } from 'motion/react';
+import ScanOverlay from './ScanOverlay';
 
 export default function Camera({ onNext, setPhoto }: { onNext: () => void, setPhoto: (photo: string) => void }) {
   const [isScanning, setIsScanning] = useState(false);
@@ -104,16 +105,8 @@ export default function Camera({ onNext, setPhoto }: { onNext: () => void, setPh
               className={`w-full h-full object-cover ${!isCameraOn ? 'hidden' : ''} grayscale contrast-125`}
             />
 
-            {/* Position Guide Overlay */}
-            {isCameraOn && !hasPhoto && !isScanning && (
-              <div className="absolute inset-0 pointer-events-none flex items-center justify-center z-10">
-                <div className="w-[85%] aspect-square rounded-full border-2 border-primary"></div>
-                <div className="absolute w-32 h-20 flex flex-col items-center justify-center drop-shadow-md">
-                  <span className="material-symbols-outlined text-white text-3xl mb-1">photo_camera</span>
-                  <span className="text-[10px] font-bold text-white tracking-widest">FOCUS HERE</span>
-                </div>
-              </div>
-            )}
+            {/* 안면 계측 가이드 */}
+            {!hasPhoto && !isScanning && <ScanOverlay locked={isCameraOn} />}
             
             {/* Captured Photo Canvas */}
             <canvas 
@@ -138,8 +131,6 @@ export default function Camera({ onNext, setPhoto }: { onNext: () => void, setPh
             </AnimatePresence>
           </div>
           
-          <div className="absolute top-4 left-4 text-[10px] text-gray-500 font-mono font-bold">ISO 400 | f/2.8</div>
-          <div className="absolute bottom-4 right-4 text-[10px] text-gray-500 font-mono font-bold">50mm LENS</div>
         </div>
 
         <div className="flex flex-col gap-3 w-full max-w-xs z-10">
